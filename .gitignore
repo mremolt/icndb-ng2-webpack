@@ -1,0 +1,16 @@
+# Created by .ignore support plugin (hsz.mobi)
+
+node_modules/*
+typings/*
+!typings/custom
+!typings/custom.d.ts
+
+test/results/*
+
+build
+.idea
+.vscode
+.DS_Store
+
+src/app/settings.ts
+test/e2e/settings.ts

@@ -1,0 +1,9 @@
+{
+  "name": "icndb-ng2-webpack",
+  "version": false,
+  "dependencies": {},
+  "ambientDependencies": {
+    "core-js": "registry:dt/core-js#0.0.0+20160317120654",
+    "require": "registry:dt/require#2.1.20+20160316155526"
+  }
+}

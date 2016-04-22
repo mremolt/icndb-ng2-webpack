@@ -1,0 +1,49 @@
+{
+  "name": "icndb-ng2-webpack",
+  "version": "1.0.0",
+  "description": "\"# icndb-ng2-webpack\"",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack-dev-server --config config/webpack.dev.js --port 3001 --inline --progress --profile --colors --watch --display-error-details --display-cached",
+    "build": "webpack --config config/webpack.prod.js  --progress --profile --colors --display-error-details --display-cached --bail"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mremolt/icndb-ng2-webpack.git"
+  },
+  "author": "Marc Remolt",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mremolt/icndb-ng2-webpack/issues"
+  },
+  "homepage": "https://github.com/mremolt/icndb-ng2-webpack#readme",
+  "devDependencies": {
+    "appcache-webpack-plugin": "^1.2.1",
+    "autoprefixer": "^6.3.6",
+    "awesome-typescript-loader": "^0.17.0-rc.7",
+    "clean-webpack-plugin": "^0.1.8",
+    "copy-webpack-plugin": "^2.0.1",
+    "css-loader": "^0.23.1",
+    "cssnano": "^3.5.2",
+    "exports-loader": "^0.6.3",
+    "file-loader": "^0.8.5",
+    "html-webpack-plugin": "^2.16.0",
+    "node-sass": "^3.5.3",
+    "pixrem": "^3.0.0",
+    "postcss-loader": "^0.8.2",
+    "raw-loader": "^0.5.1",
+    "sass-loader": "^3.2.0",
+    "source-map-loader": "^0.1.5",
+    "style-loader": "^0.13.1",
+    "tslint": "^3.8.0",
+    "typescript": "^1.8.10",
+    "webpack": "^1.13.0",
+    "webpack-dev-server": "^1.14.1",
+    "webpack-md5-hash": "0.0.5"
+  },
+  "dependencies": {
+    "core-js": "^2.2.2",
+    "immutable": "^3.8.1",
+    "rxjs": "^5.0.0-beta.6"
+  }
+}
