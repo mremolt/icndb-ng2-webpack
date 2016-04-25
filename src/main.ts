@@ -2,6 +2,8 @@
 import 'core-js/shim';
 import {Map, List, fromJS} from 'immutable';
 
+import {Observable} from 'rxjs';
+
 import {RootStore} from './app/base/RootStore';
 import {Store} from './app/base/Store';
 
@@ -40,14 +42,16 @@ class FooActions {
   }
 
   newTest(value: any): void {
-    let result: any = value + 4;
-    if (this.reducers.newTest) {
-      this.reducers.newTest.forEach(reducerFn => {
+    let result: any = value + 7;
+    let obs: Observable<any> = Observable.of(result);
+    let reducers: Array<Function> = this.reducers.newTest || [];
+
+    obs.subscribe((data: any) => {
+      reducers.forEach(reducerFn => {
         this.rootStore.reduceState(this.path, reducerFn, result);
       });
-    }
+    });
   }
-
 }
 
 
