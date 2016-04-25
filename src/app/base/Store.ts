@@ -32,4 +32,9 @@ export class Store extends Subject<Map<string, any>> {
     path = List.isList(path) ? path : fromJS(path);
     return this.rootStore.state.getIn(this.path.concat(path));
   }
+
+  register(actions: any, actionName: string,
+           startReducer: Function, nextReducer: Function, completeReducer: Function, errorReducer: Function): void {
+    actions.register(actionName, this.path, startReducer, nextReducer, completeReducer, errorReducer);
+  }
 }
