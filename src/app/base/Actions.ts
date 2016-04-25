@@ -1,3 +1,4 @@
+import {IReducerFunction} from './Store';
 import {RootStore} from './RootStore';
 import {List} from 'immutable';
 import {Observable, Subscription} from 'rxjs';
@@ -58,9 +59,8 @@ export class Actions {
 
   constructor(private rootStore: RootStore) {}
 
-
-  register(actionName: string, path: Array<string> | List<string>, startReducer: Function,
-           nextReducer: Function, completeReducer: Function, errorReducer: Function): void {
+  register(actionName: string, path: Array<string> | List<string>, startReducer: IReducerFunction,
+           nextReducer: IReducerFunction, completeReducer: IReducerFunction, errorReducer: IReducerFunction): void {
     if (!this.reducers[actionName]) {
       this.reducers[actionName] = [];
     }

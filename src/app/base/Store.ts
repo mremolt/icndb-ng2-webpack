@@ -6,6 +6,10 @@ export interface IStore {
   new(rootStore: RootStore, path: Array<string> | List<string>, actions?: any): Store;
 }
 
+export interface IReducerFunction {
+  (currentState: Map<string, any>, data: any): Map<string, any>;
+}
+
 export class Store extends Subject<Map<string, any>> {
 
   private path: List<string>;
@@ -33,8 +37,8 @@ export class Store extends Subject<Map<string, any>> {
     return this.rootStore.state.getIn(this.path.concat(path));
   }
 
-  register(actions: any, actionName: string,
-           startReducer: Function, nextReducer: Function, completeReducer: Function, errorReducer: Function): void {
+  register(actions: any, actionName: string, startReducer: IReducerFunction, nextReducer: IReducerFunction,
+           completeReducer: IReducerFunction, errorReducer: IReducerFunction): void {
     actions.register(actionName, this.path, startReducer, nextReducer, completeReducer, errorReducer);
   }
 }
