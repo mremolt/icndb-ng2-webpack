@@ -1,6 +1,6 @@
 import {RootStore} from './RootStore';
 import {Map, List, fromJS} from 'immutable';
-import {Subject} from 'rxjs';
+import {Subject, Observable} from 'rxjs';
 
 export interface IStore {
   new(rootStore: RootStore, path: Array<string> | List<string>, actions?: any): Store;
@@ -20,6 +20,10 @@ export class Store extends Subject<Map<string, any>> {
     this.init();
   }
 
+  get state(): Observable<Map<string, any>> {
+    return this;
+  }
+
   initialState(): Map<string, any> {
     return Map({});
   }
@@ -32,9 +36,14 @@ export class Store extends Subject<Map<string, any>> {
     this.next(this.getState());
   }
 
-  getState(path: Array<string> | List<string> = List([])): any {
-    path = List.isList(path) ? path : fromJS(path);
-    return this.rootStore.state.getIn(this.path.concat(path));
+  getState(path: Array<string> | List<string> | string = List([])): any {
+    let newPath: List<string>;
+    if (typeof path === 'string') {
+      newPath = List([path]);
+    } else {
+      newPath = fromJS(path);
+    }
+    return this.rootStore.state.getIn(this.path.concat(newPath));
   }
 
   register(actions: any, actionName: string, startReducer: IReducerFunction, nextReducer: IReducerFunction,

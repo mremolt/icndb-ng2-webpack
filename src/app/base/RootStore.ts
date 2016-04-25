@@ -1,12 +1,23 @@
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject, Observable} from 'rxjs';
 import {Map, List, fromJS} from 'immutable';
 
 import {Store, IStore} from './Store';
 import {Actions, IActions} from './Actions';
 
+export interface IRegisterInstance {
+  store: Store;
+  actions: Actions;
+};
+
+export function getStateObservable(store: Store, path: List<string> | string): Observable<any> {
+  return store.state.map(() => {
+    return store.getState(path);
+  });
+}
 
 export class RootStore extends BehaviorSubject<Map<string, any>> {
 
+  public logEvents: boolean = false;
   private stores: Map<any, any> = Map().asMutable();
   private actions: Map<any, any> = Map().asMutable();
 
@@ -18,7 +29,7 @@ export class RootStore extends BehaviorSubject<Map<string, any>> {
     return this.getValue();
   }
 
-  register(path: Array<string> | List<string>, storeClass: IStore, actionsClass: IActions): void {
+  register(path: Array<string> | List<string>, storeClass: IStore, actionsClass: IActions): IRegisterInstance {
     path = List.isList(path) ? path : fromJS(path);
 
     let keyPath: string = path.join('/');
@@ -28,6 +39,11 @@ export class RootStore extends BehaviorSubject<Map<string, any>> {
     this.stores.set(keyPath, store);
     this.actions.set(keyPath, actions);
     this.setState(path, store.initialState());
+
+    return {
+      store,
+      actions
+    };
   }
 
   getStore(path: Array<string> | List<string>): any {
@@ -48,8 +64,9 @@ export class RootStore extends BehaviorSubject<Map<string, any>> {
     }
 
     let currentState: any = this.getValue();
-    this.next(currentState.setIn(path, newState));
     let keyPath: string = path.join('/');
+
+    this.next(currentState.setIn(path, newState));
 
     if (emit) {
       this.stores
@@ -62,13 +79,22 @@ export class RootStore extends BehaviorSubject<Map<string, any>> {
     let oldState: any = this.getState(path).toJS();
     this.setState(path, reducer(this.getState(path), value));
 
-    // minimize performance impact of logging
-    window.requestAnimationFrame(() => {
-      console.groupCollapsed(`Action: ${actionName}->${reducerType}, Path: ${path.join('/')}`);
-      console.log('%c old state', `color: #9E9E9E; font-weight: bold`, oldState);
-      console.log('%c new state', `color: #4CAF50; font-weight: bold`, this.getState(path).toJS());
-      console.groupEnd();
-    });
+    this.logStateChange(oldState, this.getState(path).toJS(), path, actionName, reducerType);
+  }
+
+  private logStateChange(oldState: Map<string, any>, newState: Map<string, any>, path: List<string>,
+                         actionName: string, reducerType: string): void {
+    if (this.logEvents) {
+      // make the logging async and use the best function to minimize performance impact of logging
+      let delayFn: Function = window.requestAnimationFrame || window.setImmediate || window.setTimeout;
+
+      delayFn(() => {
+        console.groupCollapsed(`Action: ${actionName}->${reducerType}, Path: ${path.join('/')}`);
+        console.log('%c old state', `color: #9E9E9E; font-weight: bold`, oldState);
+        console.log('%c new state', `color: #4CAF50; font-weight: bold`, this.getState(path).toJS());
+        console.groupEnd();
+      });
+    }
   }
 
 }

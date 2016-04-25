@@ -1,5 +1,9 @@
 import {Map} from 'immutable';
+import {Observable} from 'rxjs';
+
+import {getStateObservable} from './../../base/RootStore';
 import {Store} from './../../base/Store';
+
 
 export class FooStore extends Store {
 
@@ -14,19 +18,25 @@ export class FooStore extends Store {
     });
   }
 
+  // an attribute getter as obervable, works really well with angular2 "async" pipe
+  get loading(): Observable<boolean> {
+    return getStateObservable(this, 'loading');
+  }
+
+  get value(): Observable<string|number> {
+    return getStateObservable(this, 'test');
+  }
+
   onTestStart(currentState: Map<string, any>): Map<string, any> {
-    console.log('onTestStart');
     return currentState.set('loading', true);
   }
 
   onTestNext(currentState: Map<string, any>, value: any): Map<string, any> {
-    console.log('onTestNext');
     return currentState
       .set('test', value * 2);
   }
 
   onTestComplete(currentState: Map<string, any>): Map<string, any> {
-    console.log('onTestComplete');
     return currentState
       .set('loading', false);
   }
