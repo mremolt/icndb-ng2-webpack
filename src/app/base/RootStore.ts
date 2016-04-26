@@ -9,6 +9,11 @@ export interface IRegisterInstance {
   actions: Actions;
 };
 
+export interface IMiddleware {
+  (rootStore: RootStore, oldState: Map<string, any>, newState: Map<string, any>, path: List<string>, actionName: string,
+    reducerType: string): Map<string, any>;
+}
+
 export function getStateObservable(store: Store, path: List<string> | string): Observable<any> {
   return store.state.map(() => {
     return store.getState(path);
@@ -20,6 +25,7 @@ export class RootStore extends BehaviorSubject<Map<string, any>> {
   public logEvents: boolean = false;
   private stores: Map<any, any> = Map().asMutable();
   private actions: Map<any, any> = Map().asMutable();
+  private middlewares: Array<Function> = [];
 
   constructor(initialState: Map<string, any> = Map({})) {
     super(initialState);
@@ -76,25 +82,28 @@ export class RootStore extends BehaviorSubject<Map<string, any>> {
   }
 
   reduceState(path: List<string>, reducer: Function, actionName: string, reducerType: string, value?: any): void {
-    let oldState: any = this.getState(path).toJS();
-    this.setState(path, reducer(this.getState(path), value));
+    let oldState: any = this.getState(path);
+    let newState: any = reducer(this.getState(path), value);
 
-    this.logStateChange(oldState, this.getState(path).toJS(), path, actionName, reducerType);
+    newState = this.middlewares.reduce((state, middleware) => {
+      return middleware(this, oldState, state, path, actionName, reducerType);
+    }, newState);
+
+    this.setState(path, newState);
   }
 
-  private logStateChange(oldState: Map<string, any>, newState: Map<string, any>, path: List<string>,
-                         actionName: string, reducerType: string): void {
-    if (this.logEvents) {
-      // make the logging async and use the best function to minimize performance impact of logging
-      let delayFn: Function = window.requestAnimationFrame || window.setImmediate || window.setTimeout;
-
-      delayFn(() => {
-        console.groupCollapsed(`Action: ${actionName}->${reducerType}, Path: ${path.join('/')}`);
-        console.log('%c old state', `color: #9E9E9E; font-weight: bold`, oldState);
-        console.log('%c new state', `color: #4CAF50; font-weight: bold`, this.getState(path).toJS());
-        console.groupEnd();
-      });
-    }
+  addMiddleware(middleware: IMiddleware): void {
+    this.middlewares.push(middleware);
   }
 
+  dumpState(): void {
+    let state: string = JSON.stringify(this.getValue().toJS());
+    localStorage.setItem('rootStore', state);
+  }
+
+  loadState(): void {
+    let state: any = fromJS(JSON.parse(localStorage.getItem('rootStore')));
+    this.next(state);
+    this.stores.forEach(store => store.emit());
+  }
 }

@@ -5,12 +5,16 @@ import {Subscription} from 'rxjs';
 import {RootStore} from './app/base/RootStore';
 import {FooActions} from './app/backend/foo/FooActions';
 import {FooStore} from './app/backend/foo/FooStore';
+import {logStateChange, timestampMiddleware} from './app/base/middleware';
 
 
 let rootStore: RootStore = new RootStore();
 // log all state changes
 rootStore.logEvents = true;
-// window['rootStore'] = rootStore;
+rootStore.addMiddleware(timestampMiddleware);
+rootStore.addMiddleware(logStateChange);
+
+window['rootStore'] = rootStore;
 
 let samplePath: Array<string> = ['foo', '42'];
 
@@ -26,11 +30,11 @@ s1.loading.subscribe((value) => {
 // directly fetch the new store and action instances
 let { store: s2, actions: a2 }: any = rootStore.register(['foo', '44', 'bar', 'baz'], FooStore, FooActions);
 
-s2.loading.subscribe((value) => {
-  console.log('loading s2', value);
+s2.value.subscribe((value) => {
+  document.getElementById('content').innerText = value;
 });
 
-a2.newTest(7);
+a2.newTest(33);
 
 
 // canceling an action
