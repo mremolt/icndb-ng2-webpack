@@ -5,14 +5,16 @@ import {Subscription} from 'rxjs';
 import {RootStore} from './app/base/RootStore';
 import {FooActions} from './app/backend/foo/FooActions';
 import {FooStore} from './app/backend/foo/FooStore';
-import {logStateChange, timestampMiddleware} from './app/base/middleware';
+import {logActionPreMiddleware, logStateChangePostMiddleware, timestampPostMiddleware} from './app/base/middleware';
 
 
 let rootStore: RootStore = new RootStore();
 // log all state changes
 rootStore.logEvents = true;
-rootStore.addMiddleware(timestampMiddleware);
-rootStore.addMiddleware(logStateChange);
+
+rootStore.addPreMiddleware(logActionPreMiddleware);
+rootStore.addPostMiddleware(timestampPostMiddleware);
+rootStore.addPostMiddleware(logStateChangePostMiddleware);
 
 window['rootStore'] = rootStore;
 
@@ -34,7 +36,7 @@ s2.value.subscribe((value) => {
   document.getElementById('content').innerText = value;
 });
 
-a2.newTest(33);
+a2.newTest(7);
 
 
 // canceling an action
