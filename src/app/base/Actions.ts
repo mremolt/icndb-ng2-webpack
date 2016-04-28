@@ -4,13 +4,17 @@ import {List} from 'immutable';
 import {Observable, Subscription} from 'rxjs';
 
 
-export function action(target: Object, key: string, descriptor: TypedPropertyDescriptor<any>): TypedPropertyDescriptor<any> {
-
-  let fn: Function = descriptor.value;
+export function action(target: any, key: string, descriptor: TypedPropertyDescriptor<any>): TypedPropertyDescriptor<any> {
+  let actionFn: Function = descriptor.value;
 
   descriptor.value = function(...args: Array<any>): Subscription {
     let reducers: Array<any> = this.reducers.newTest || [];
     let obs: Observable<any>;
+
+    // preMiddlewares
+    actionFn = this.rootStore.preMiddlewares.reduce((currentActionFn, middleware) => {
+      return middleware(currentActionFn, target.constructor.name, key, this, ...args);
+    }, actionFn);
 
     // start
     reducers.forEach(reducer => {
@@ -18,7 +22,7 @@ export function action(target: Object, key: string, descriptor: TypedPropertyDes
     });
 
     try {
-      obs = fn.apply(this, args);
+      obs = actionFn.apply(this, args);
       if (!(obs instanceof Observable)) {
         obs = Observable.of(obs);
       }
@@ -60,7 +64,7 @@ export class Actions {
   constructor(private rootStore: RootStore) {}
 
   register(actionName: string, path: Array<string> | List<string>, startReducer: IReducerFunction,
-           nextReducer: IReducerFunction, completeReducer: IReducerFunction, errorReducer: IReducerFunction): void {
+           nextReducer: IReducerFunction, completeReducer?: IReducerFunction, errorReducer?: IReducerFunction): void {
     if (!this.reducers[actionName]) {
       this.reducers[actionName] = [];
     }

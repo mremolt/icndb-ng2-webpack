@@ -5,7 +5,7 @@ import {Actions, action} from './../../base/Actions';
 export class FooActions extends Actions {
 
   @action
-  newTest(value: any): any {
+  newTest(value: number): any {
     let result: any = value + 7;
 
     // three possible returns: pure value, Observable or throw Error
@@ -13,6 +13,6 @@ export class FooActions extends Actions {
     // throw new Error('DESTRUCTION');
     // return result;
 
-    return Observable.of(result, result + 2).delay(1000);
+    return Observable.of(result);
   }
 }

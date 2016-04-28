@@ -1,5 +1,6 @@
 import {BehaviorSubject, Observable} from 'rxjs';
 import {Map, List, fromJS} from 'immutable';
+import * as transit from 'transit-immutable-js';
 
 import {Store, IStore} from './Store';
 import {Actions, IActions} from './Actions';
@@ -8,6 +9,15 @@ export interface IRegisterInstance {
   store: Store;
   actions: Actions;
 };
+
+export interface IPreMiddleware {
+  (action: Function, className: string, actionName: string, context: Actions, args: Array<any>): Function;
+}
+
+export interface IPostMiddleware {
+  (rootStore: RootStore, oldState: Map<string, any>, newState: Map<string, any>, path: List<string>, actionName: string,
+    reducerType: string): Map<string, any>;
+}
 
 export function getStateObservable(store: Store, path: List<string> | string): Observable<any> {
   return store.state.map(() => {
@@ -20,6 +30,8 @@ export class RootStore extends BehaviorSubject<Map<string, any>> {
   public logEvents: boolean = false;
   private stores: Map<any, any> = Map().asMutable();
   private actions: Map<any, any> = Map().asMutable();
+  private preMiddlewares: Array<Function> = [];
+  private postMiddlewares: Array<Function> = [];
 
   constructor(initialState: Map<string, any> = Map({})) {
     super(initialState);
@@ -76,25 +88,34 @@ export class RootStore extends BehaviorSubject<Map<string, any>> {
   }
 
   reduceState(path: List<string>, reducer: Function, actionName: string, reducerType: string, value?: any): void {
-    let oldState: any = this.getState(path).toJS();
-    this.setState(path, reducer(this.getState(path), value));
+    if (typeof reducer === 'function') {
+      let oldState: any = this.getState(path);
+      let newState: any = reducer(this.getState(path), value);
 
-    this.logStateChange(oldState, this.getState(path).toJS(), path, actionName, reducerType);
-  }
+      newState = this.postMiddlewares.reduce((state, middleware) => {
+        return middleware(this, oldState, state, path, actionName, reducerType);
+      }, newState);
 
-  private logStateChange(oldState: Map<string, any>, newState: Map<string, any>, path: List<string>,
-                         actionName: string, reducerType: string): void {
-    if (this.logEvents) {
-      // make the logging async and use the best function to minimize performance impact of logging
-      let delayFn: Function = window.requestAnimationFrame || window.setImmediate || window.setTimeout;
-
-      delayFn(() => {
-        console.groupCollapsed(`Action: ${actionName}->${reducerType}, Path: ${path.join('/')}`);
-        console.log('%c old state', `color: #9E9E9E; font-weight: bold`, oldState);
-        console.log('%c new state', `color: #4CAF50; font-weight: bold`, this.getState(path).toJS());
-        console.groupEnd();
-      });
+      this.setState(path, newState);
     }
   }
 
+  addPreMiddleware(middleware: IPreMiddleware): void {
+    this.preMiddlewares.push(middleware);
+  }
+
+  addPostMiddleware(middleware: IPostMiddleware): void {
+    this.postMiddlewares.push(middleware);
+  }
+
+  dumpState(): void {
+    let state: string = transit.toJSON(this.getValue());
+    localStorage.setItem('rootStore', state);
+  }
+
+  loadState(): void {
+    let state: any = transit.fromJSON(localStorage.getItem('rootStore'));
+    this.next(state);
+    this.stores.forEach(store => store.emit());
+  }
 }

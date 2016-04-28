@@ -6,17 +6,11 @@ import 'zone.js/dist/long-stack-trace-zone';
 
 import {bootstrap}    from 'angular2/platform/browser';
 import {enableProdMode} from 'angular2/core';
-import {Subscription} from 'rxjs';
-
-import {RootStore} from './app/base/RootStore';
-import {FooActions} from './app/backend/foo/FooActions';
-import {FooStore} from './app/backend/foo/FooStore';
-
 import {App} from './app/App';
 
 enableProdMode();
 bootstrap(App);
-//
+
 //
 // let rootStore: RootStore = new RootStore();
 // // log all state changes

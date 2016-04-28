@@ -6,25 +6,19 @@ import {Store} from './../../base/Store';
 
 
 export class FooStore extends Store {
+  value: Observable<string|number>;
+  loading: Observable<string|number>;
 
   init(): void {
+    this.value = getStateObservable(this, 'test');
+    this.loading = getStateObservable(this, 'loading');
+
     this.register(this.actions, 'newTest',
-      this.onTestStart, this.onTestNext, this.onTestComplete, this.onTestError);
+      this.onTestStart, this.onTestNext);
   }
 
   initialState(): any {
-    return Map({
-      test: 'value'
-    });
-  }
-
-  // an attribute getter as obervable, works really well with angular2 "async" pipe
-  get loading(): Observable<boolean> {
-    return getStateObservable(this, 'loading');
-  }
-
-  get value(): Observable<string|number> {
-    return getStateObservable(this, 'test');
+    return Map({ test: 0 });
   }
 
   onTestStart(currentState: Map<string, any>): Map<string, any> {

@@ -47,7 +47,7 @@ export class Store extends Subject<Map<string, any>> {
   }
 
   register(actions: any, actionName: string, startReducer: IReducerFunction, nextReducer: IReducerFunction,
-           completeReducer: IReducerFunction, errorReducer: IReducerFunction): void {
+           completeReducer?: IReducerFunction, errorReducer?: IReducerFunction): void {
     actions.register(actionName, this.path, startReducer, nextReducer, completeReducer, errorReducer);
   }
 }
