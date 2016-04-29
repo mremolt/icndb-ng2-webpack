@@ -19,7 +19,7 @@ export interface IPostMiddleware {
     reducerType: string): Map<string, any>;
 }
 
-export function getStateObservable(store: Store, path: List<string> | string): Observable<any> {
+export function getStateObservable(store: any, path: List<string> | string): Observable<any> {
   return store.state.map(() => {
     return store.getState(path);
   });

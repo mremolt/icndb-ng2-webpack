@@ -8,11 +8,11 @@ export function action(target: any, key: string, descriptor: TypedPropertyDescri
   let actionFn: Function = descriptor.value;
 
   descriptor.value = function(...args: Array<any>): Subscription {
-    let reducers: Array<any> = this.reducers.newTest || [];
+    let reducers: Array<any> = this.reducers[key] || [];
     let obs: Observable<any>;
 
     // preMiddlewares
-    actionFn = this.rootStore.preMiddlewares.reduce((currentActionFn, middleware) => {
+    let fn: Function = this.rootStore.preMiddlewares.reduce((currentActionFn, middleware) => {
       return middleware(currentActionFn, target.constructor.name, key, this, ...args);
     }, actionFn);
 
@@ -22,7 +22,7 @@ export function action(target: any, key: string, descriptor: TypedPropertyDescri
     });
 
     try {
-      obs = actionFn.apply(this, args);
+      obs = fn.apply(this, args);
       if (!(obs instanceof Observable)) {
         obs = Observable.of(obs);
       }

@@ -1,0 +1,9 @@
+<h2>The Jokes</h2>
+<button (click)="loadJokes()">Load jokes</button>
+<ul *ngIf="!loading">
+  <li *ngFor="let joke of jokesStore.jokes | async">
+    {{ joke.get('joke') }}
+  </li>
+</ul>
+
+<div *ngIf="loading">loading ...</div>

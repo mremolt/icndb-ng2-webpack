@@ -6,11 +6,11 @@ import {Store} from './../../base/Store';
 
 
 export class FooStore extends Store {
-  value: Observable<string|number>;
+  theValue: Observable<string|number>;
   loading: Observable<string|number>;
 
   init(): void {
-    this.value = getStateObservable(this, 'test');
+    this.theValue = getStateObservable(this, 'test');
     this.loading = getStateObservable(this, 'loading');
 
     this.register(this.actions, 'newTest',
@@ -37,6 +37,6 @@ export class FooStore extends Store {
 
   onTestError(currentState: Map<string, any>, error: Error): Map<string, any> {
     console.error('ARGH!!!!!!', error);
-    return currentState;
+    return currentState.set('error', error);
   }
 }
