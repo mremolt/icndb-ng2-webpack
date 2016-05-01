@@ -50,7 +50,7 @@ export class RootStore extends BehaviorSubject<Map<string, any>> {
 
     this.stores.set(keyPath, store);
     this.actions.set(keyPath, actions);
-    this.setState(path, store.initialState());
+    this.setState(path, fromJS(store.initialState()));
 
     return {
       store,
@@ -78,7 +78,7 @@ export class RootStore extends BehaviorSubject<Map<string, any>> {
     let currentState: any = this.getValue();
     let keyPath: string = path.join('/');
 
-    this.next(currentState.setIn(path, newState));
+    this.next(currentState.setIn(path, fromJS(newState)));
 
     if (emit) {
       this.stores

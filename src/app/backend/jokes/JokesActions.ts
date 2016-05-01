@@ -7,7 +7,8 @@ export class JokesActions extends Actions {
 
   @action
   fetch(num: number = 5): Observable<any> {
-    return http().get(`http://api.icndb.com/jokes/random/${num}`)
+    return http()
+      .get(`http://api.icndb.com/jokes/random/${num}`)
       .map((response: Response) => {
         let body: any = response.json();
         return body.value || [];

@@ -1,9 +1,15 @@
 <h2>The Jokes</h2>
-<button (click)="loadJokes()">Load jokes</button>
-<ul *ngIf="!loading">
-  <li *ngFor="let joke of jokesStore.jokes | async">
-    {{ joke.get('joke') }}
-  </li>
-</ul>
 
-<div *ngIf="loading">loading ...</div>
+<input class="mdl-slider mdl-js-slider" type="range"
+  min="1" max="50" [value]="numberOfJokes" tabindex="0"
+  (change)="updateNumberOfJokes($event.target.value)">
+
+<button
+  (click)="loadJokes()"
+  class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
+>Reload jokes</button>
+
+<div [hidden]="!loading" class="mdl-spinner mdl-js-spinner is-active"></div>
+<div>
+  <joke *ngFor="let joke of jokesStore.jokes | async" [joke]="joke"></joke>
+</div>

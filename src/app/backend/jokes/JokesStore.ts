@@ -16,7 +16,7 @@ export class JokesStore extends Store {
   }
 
   initialState(): Map<string, any> {
-    return Map({
+    return fromJS({
       error: null,
       loading: false,
       jokes: []

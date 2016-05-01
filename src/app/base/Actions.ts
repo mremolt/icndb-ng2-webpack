@@ -1,6 +1,6 @@
 import {IReducerFunction} from './Store';
 import {RootStore} from './RootStore';
-import {List} from 'immutable';
+import {List, fromJS} from 'immutable';
 import {Observable, Subscription} from 'rxjs';
 
 
@@ -34,7 +34,7 @@ export function action(target: any, key: string, descriptor: TypedPropertyDescri
     return obs.subscribe(
       (data: any) => {
         reducers.forEach(reducer => {
-          this.rootStore.reduceState(reducer.path, reducer.nextReducer, key, 'next', data);
+          this.rootStore.reduceState(reducer.path, reducer.nextReducer, key, 'next', fromJS(data));
         });
       },
       (error: any) => {

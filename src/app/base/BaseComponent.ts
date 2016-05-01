@@ -11,9 +11,11 @@ export class BaseComponent {
   bindChange(observables: Array<Observable<any>> | Observable<any>, callback: Function): void {
     let allObservables: Array<any> = Array.isArray(observables) ? observables : [observables];
 
-    allObservables.forEach(observable => {
-      this.subscriptions.push(observable.subscribe(callback.bind(this)));
-    });
+    let masterObservable: Observable<any> = Observable
+      .merge(...allObservables)
+      .debounceTime(1); // prevent multiple firing of callbacks
+
+    this.subscriptions.push(masterObservable.subscribe(callback.bind(this)));
   }
 
   cleanup(): void {
